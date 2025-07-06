@@ -1,0 +1,15 @@
+{
+  "name": "labelease",
+  "version": "1.0.0",
+  "description": "an easy-to-use labelling tool ",
+  "main": "main.js",
+  "type": "module",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "shinie",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^37.2.0"
+  }
+}

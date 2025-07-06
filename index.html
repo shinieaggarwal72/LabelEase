@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LabelEase - Image Annotation</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>LabelEase - Image Annotation Tool</h1>
+
+  <div id="toolbar">
+    <button id="select-folder">📁 Select Image Folder</button>
+    <button id="prev-image">⏪ Previous</button>
+    <button id="next-image">⏩ Next</button>
+
+    <label for="class-selector">Select Class:</label>
+    <select id="class-selector">
+      <option value="" disabled selected>Select Class</option>
+    </select>
+
+    <button id="add-class-btn">➕ Add Class</button>
+
+    <label for="format-selector">Export Format:</label>
+    <select id="format-selector">
+      <option value="default">Default (x y w h)</option>
+      <option value="yolo">YOLO</option>
+    </select>
+
+    <button id="done-btn">✅ Done & Save</button>
+  </div>
+
+  <div id="canvas-container">
+    <canvas id="canvas" width="800" height="600"></canvas>
+  </div>
+
+  <p id="status">No image loaded</p>
+
+  <!-- Modal for adding classes -->
+  <div id="class-input-modal" style="display:none; position:fixed; top:30%; left:30%; background:#fff; border:1px solid #000; padding:20px; z-index:1000;">
+    <h3>Enter Classes (comma separated)</h3>
+    <input type="text" id="class-input" placeholder="class1, class2, ...">
+    <button id="class-save-btn">Save</button>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
