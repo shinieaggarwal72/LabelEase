@@ -1,7 +1,7 @@
 # LabelEase: Cross-Platform Image Annotation App (Ongoing)
 
 ![Progress](https://img.shields.io/badge/progress-early%20stage-orange)
-![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux-blue)
+![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux-purple)
 ![Built with](https://img.shields.io/badge/built%20with-Electron.js-yellow)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
