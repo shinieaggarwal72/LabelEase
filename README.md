@@ -3,6 +3,7 @@
 ![Progress](https://img.shields.io/badge/progress-early%20stage-orange)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux-blue)
 ![Built with](https://img.shields.io/badge/built%20with-Electron.js-yellow)
+![License](https://img.shields.io/badge/license-MIT-blue)
 
 
 A lightweight, native image annotation tool built with Electron.js to support bounding boxes and polygon segmentation for computer vision datasets. Designed for ease-of-use, speed, and multi-format export compatibility.
