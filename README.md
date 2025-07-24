@@ -54,7 +54,7 @@ A lightweight, native image annotation tool built with Electron.js to support bo
 1. Clone the repository:
   ```bash
   git clone https://github.com/shinieaggarwal72/LabelEase.git
-  cd image-annotation-app
+  cd LabelEase
   ```
 
 2. Install dependencies
