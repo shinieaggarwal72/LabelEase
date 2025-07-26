@@ -11,10 +11,10 @@ A lightweight, native image annotation tool built with Electron.js to support bo
 > ⚠️ **Note:** This project is under active development. Contributions and feedback are welcome!
 
 <br>
+
+### [Watch the demo video](demo/demo.mp4)
+
 <br>
-
-
-
 
 ## Features (Current)
 
