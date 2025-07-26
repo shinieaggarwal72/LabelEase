@@ -12,6 +12,9 @@ A lightweight, native image annotation tool built with Electron.js to support bo
 
 <br>
 
+### Watch demo video
+
+
 ### [![Watch the demo video](https://img.youtube.com/vi/4vERSReBPds/0.jpg)](https://www.youtube.com/watch?v=4vERSReBPds)
 
 <br>
