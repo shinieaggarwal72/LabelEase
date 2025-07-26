@@ -21,7 +21,10 @@ A lightweight, native image annotation tool built with Electron.js to support bo
 - Upload and view images
 - Draw bounding boxes on images using HTML5 Canvas
 -  Assign class labels to annotations
--  Export label files in simple format
+- Export label files to popular ML formats:
+  - YOLO (txt)
+  - COCO (JSON)
+  - Pascal VOC (XML)
 
 <br>
 
@@ -29,10 +32,6 @@ A lightweight, native image annotation tool built with Electron.js to support bo
 
 - Polygon segmentation support
 - Class/category management with shortcuts
-- One-click export to popular ML formats:
-  - YOLO (txt)
-  - COCO (JSON)
-  - Pascal VOC (XML)
 - Project-level save/load with annotation history
 - Performance optimization for large image sets
 - Security & sandboxing improvements
