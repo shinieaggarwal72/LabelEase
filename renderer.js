@@ -1,7 +1,3 @@
-const { ipcRenderer } = require('electron');
-const fs = require('fs');
-const path = require('path');
-
 const uploadBtn = document.getElementById("select-folder");
 const nextBtn = document.getElementById("next-image");
 const prevBtn = document.getElementById("prev-image");
@@ -23,20 +19,39 @@ let startY = 0;
 let currentRect = null;
 const classColors = {}; 
 
+function updateNavButtons() {
+  if (imagePaths.length === 0) {
+    nextBtn.disabled = true;
+    prevBtn.disabled = true;
+  } else {
+    nextBtn.disabled = currentIndex >= imagePaths.length - 1;
+    prevBtn.disabled = currentIndex <= 0;
+  }
+}
+
 uploadBtn.addEventListener("click", async () => {
-  folderPath = await ipcRenderer.invoke('dialog:openFolder');
+  folderPath = await window.electronAPI.invoke('dialog:openFolder');
   if (folderPath) {
-    fs.readdir(folderPath, (err, files) => {
-      if (err) return;
-      imagePaths = files.filter(f => /\.(png|jpe?g|bmp|gif)$/i.test(f)).map(f => path.join(folderPath, f));
-      if (imagePaths.length === 0) {
-        status.textContent = "No images found in the selected folder.";
-      } else {
-        currentIndex = 0;
-        loadImage();
-        promptForClasses();
-      }
-    });
+    // Use IPC to read directory
+    const files = await window.electronAPI.invoke('fs:readdir', folderPath);
+    if (!files) {
+      imagePaths = [];
+      updateNavButtons();
+      return;
+    }
+    imagePaths = files.filter(f => /\.(png|jpe?g|bmp|gif)$/i.test(f)).map(f => window.electronAPI.invoke('path:join', folderPath, f));
+    imagePaths = await Promise.all(imagePaths);
+    if (imagePaths.length === 0) {
+      status.textContent = "No images found in the selected folder.";
+    } else {
+      currentIndex = 0;
+      loadImage();
+      promptForClasses();
+    }
+    updateNavButtons();
+  } else {
+    imagePaths = [];
+    updateNavButtons();
   }
 });
 
@@ -64,12 +79,13 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   });
 
-  doneBtn.addEventListener("click", () => {
+  doneBtn.addEventListener("click", async () => {
     if (!folderPath) return;
 
-    const outputDir = path.join(folderPath, "annotations");
-    if (!fs.existsSync(outputDir)) {
-      fs.mkdirSync(outputDir);
+    const outputDir = await window.electronAPI.invoke('path:join', folderPath, "annotations");
+    const exists = await window.electronAPI.invoke('fs:existsSync', outputDir);
+    if (!exists) {
+      await window.electronAPI.invoke('fs:mkdirSync', outputDir);
     }
 
     const selectedFormat = formatSelector.value;
@@ -78,24 +94,33 @@ document.addEventListener("DOMContentLoaded", () => {
       .map(opt => opt.value);
 
     for (const imgPath in annotations) {
-      const imgName = path.basename(imgPath, path.extname(imgPath));
-      const txtPath = path.join(outputDir, `${imgName}.txt`);
-
+      const imgName = await window.electronAPI.invoke('path:basename', imgPath, await window.electronAPI.invoke('path:extname', imgPath));
+      let txtPath;
       let content = "";
       const boxes = annotations[imgPath] || [];
-      boxes.forEach(a => {
-        if (selectedFormat === "yolo") {
+      if (selectedFormat === "yolo") {
+        txtPath = await window.electronAPI.invoke('path:join', outputDir, `${imgName}.txt`);
+        boxes.forEach(a => {
           const clsIdx = classList.indexOf(a.label);
           const xCenter = (a.x + a.width / 2) / canvas.width;
           const yCenter = (a.y + a.height / 2) / canvas.height;
           const wNorm = a.width / canvas.width;
           const hNorm = a.height / canvas.height;
           content += `${clsIdx} ${xCenter.toFixed(6)} ${yCenter.toFixed(6)} ${wNorm.toFixed(6)} ${hNorm.toFixed(6)}\n`;
-        } else {
+        });
+      } else if (selectedFormat === "voc") {
+        txtPath = await window.electronAPI.invoke('path:join', outputDir, `${imgName}.xml`);
+        content = generateVOCXML(imgPath, boxes, canvas.width, canvas.height);
+      } else if (selectedFormat === "csv") {
+        txtPath = await window.electronAPI.invoke('path:join', outputDir, `${imgName}.csv`);
+        content = generateCSV(boxes);
+      } else {
+        txtPath = await window.electronAPI.invoke('path:join', outputDir, `${imgName}.txt`);
+        boxes.forEach(a => {
           content += `${a.label} ${a.x} ${a.y} ${a.width} ${a.height}\n`;
-        }
-      });
-      fs.writeFileSync(txtPath, content.trim());
+        });
+      }
+      await window.electronAPI.invoke('fs:writeFileSync', txtPath, content.trim());
     }
     alert(`Annotations saved in: ${outputDir}`);
   });
@@ -136,6 +161,7 @@ function loadImage() {
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
     status.textContent = `${currentIndex + 1} of ${imagePaths.length}`;
     redrawCanvas();
+    updateNavButtons();
   };
   img.src = imagePaths[currentIndex];
 }
@@ -146,6 +172,7 @@ nextBtn.addEventListener("click", () => {
     currentIndex++;
     loadImage();
   }
+  updateNavButtons();
 });
 
 prevBtn.addEventListener("click", () => {
@@ -154,6 +181,7 @@ prevBtn.addEventListener("click", () => {
     currentIndex--;
     loadImage();
   }
+  updateNavButtons();
 });
 
 canvas.addEventListener("mousedown", (e) => {
@@ -235,3 +263,27 @@ function redrawCanvas() {
 function getRandomColor() {
   return `hsl(${Math.floor(Math.random() * 360)}, 80%, 60%)`;
 }
+
+function generateVOCXML(imgPath, boxes, imgWidth, imgHeight) {
+  const imgName = imgPath.split(/[\\/]/).pop();
+  let xml = `<?xml version="1.0"?>\n<annotation>\n`;
+  xml += `  <folder>annotations</folder>\n`;
+  xml += `  <filename>${imgName}</filename>\n`;
+  xml += `  <size>\n    <width>${imgWidth}</width>\n    <height>${imgHeight}</height>\n    <depth>3</depth>\n  </size>\n`;
+  boxes.forEach(a => {
+    xml += `  <object>\n    <name>${a.label}</name>\n    <bndbox>\n      <xmin>${Math.round(a.x)}</xmin>\n      <ymin>${Math.round(a.y)}</ymin>\n      <xmax>${Math.round(a.x + a.width)}</xmax>\n      <ymax>${Math.round(a.y + a.height)}</ymax>\n    </bndbox>\n  </object>\n`;
+  });
+  xml += `</annotation>`;
+  return xml;
+}
+
+function generateCSV(boxes) {
+  let csv = "label,x,y,width,height\n";
+  boxes.forEach(a => {
+    csv += `${a.label},${a.x},${a.y},${a.width},${a.height}\n`;
+  });
+  return csv;
+}
+
+// On initial load, disable navigation buttons
+updateNavButtons();
