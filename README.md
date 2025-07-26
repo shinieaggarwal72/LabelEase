@@ -23,7 +23,7 @@ A lightweight, native image annotation tool built with Electron.js to support bo
 -  Assign class labels to annotations
 - Export label files to popular ML formats:
   - YOLO (txt)
-  - COCO (JSON)
+  - CSV
   - Pascal VOC (XML)
 
 <br>
