@@ -12,7 +12,7 @@ A lightweight, native image annotation tool built with Electron.js to support bo
 
 <br>
 
-### [Watch the demo video](demo/demo.mp4)
+### [Watch the demo video](demo/LabelEaseDemo.mp4)
 
 <br>
 
