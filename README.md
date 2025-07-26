@@ -12,7 +12,7 @@ A lightweight, native image annotation tool built with Electron.js to support bo
 
 <br>
 
-### [Watch the demo video](demo/LabelEaseDemo.mp4)
+### [![Watch the demo video](https://img.youtube.com/vi/4vERSReBPds/0.jpg)](https://www.youtube.com/watch?v=4vERSReBPds)
 
 <br>
 
